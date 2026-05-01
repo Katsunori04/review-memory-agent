@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Review Memory Agent Prototype</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="ナビゲーション">
+        <div class="brand">
+          <div class="brand-mark">R</div>
+          <div>
+            <strong>Review</strong>
+            <span>Memory Agent</span>
+          </div>
+        </div>
+
+        <nav class="nav-list">
+          <button class="nav-item is-active" type="button" data-screen="home">
+            <i data-lucide="home"></i>
+            <span>ホーム</span>
+          </button>
+          <button class="nav-item" type="button" data-screen="review">
+            <i data-lucide="file-search"></i>
+            <span>資料チェック</span>
+          </button>
+          <button class="nav-item" type="button" data-screen="memory">
+            <i data-lucide="message-square-text"></i>
+            <span>指摘メモ</span>
+          </button>
+          <button class="nav-item" type="button" data-screen="cards">
+            <i data-lucide="library"></i>
+            <span>保存した観点</span>
+          </button>
+        </nav>
+      </aside>
+
+      <div class="main-shell">
+        <header class="topbar">
+          <div>
+            <span class="eyebrow">かんたん資料レビュー</span>
+            <h1 id="screenTitle">Review Memory Agent</h1>
+          </div>
+          <div class="topbar-actions">
+            <button class="button secondary" type="button" data-screen-jump="memory">
+              <i data-lucide="plus"></i>
+              <span>指摘メモを登録</span>
+            </button>
+            <button class="button primary" type="button" data-screen-jump="review">
+              <i data-lucide="sparkles"></i>
+              <span>資料をチェック</span>
+            </button>
+          </div>
+        </header>
+
+        <main class="content">
+          <section class="screen is-active" data-screen-panel="home">
+            <div class="home-layout">
+              <section class="hero-panel">
+                <div class="hero-copy">
+                  <span class="eyebrow">営業資料の事前チェック</span>
+                  <h2>上司に出す前に、資料の不安なところを確認できます。</h2>
+                  <p>
+                    パワーポイントや文章を入れると、AIが「直した方がよい点」をわかりやすく出します。
+                    上司や会議で言われた指摘も、次回から忘れずにチェックできます。
+                  </p>
+                  <div class="hero-actions">
+                    <button class="button primary large" type="button" data-screen-jump="review">
+                      <i data-lucide="file-search"></i>
+                      <span>資料をチェックする</span>
+                    </button>
+                    <button class="button secondary large" type="button" data-screen-jump="memory">
+                      <i data-lucide="message-square-text"></i>
+                      <span>指摘メモを登録する</span>
+                    </button>
+                    <button class="button secondary large" type="button" data-screen-jump="cards">
+                      <i data-lucide="library"></i>
+                      <span>保存した観点を見る</span>
+                    </button>
+                  </div>
+                </div>
+                <div class="flow-board" aria-label="コア体験">
+                  <div>
+                    <i data-lucide="file-up"></i>
+                    <strong>1. 資料を入れる</strong>
+                    <span>提案書や稟議書を入れるだけでOK</span>
+                  </div>
+                  <i data-lucide="arrow-right"></i>
+                  <div>
+                    <i data-lucide="message-square-text"></i>
+                    <strong>2. 指摘を見る</strong>
+                    <span>直すところと、追記例を確認</span>
+                  </div>
+                  <i data-lucide="arrow-right"></i>
+                  <div>
+                    <i data-lucide="bookmark-check"></i>
+                    <strong>3. 次回に活かす</strong>
+                    <span>上司の指摘を次回のチェック観点に保存</span>
+                  </div>
+                </div>
+              </section>
+
+              <aside class="panel">
+                <div class="panel-heading">
+                  <div>
+                    <span class="eyebrow">保存済み</span>
+                    <h2>次回も見る観点</h2>
+                  </div>
+                  <span class="count-pill">3件</span>
+                </div>
+                <div class="recent-list" id="recentMemoryList"></div>
+              </aside>
+            </div>
+          </section>
+
+          <section class="screen" data-screen-panel="review">
+            <div class="review-layout">
+              <section class="panel">
+                <div class="panel-heading">
+                  <div>
+                    <span class="eyebrow">1</span>
+                    <h2>チェックしたい資料</h2>
+                  </div>
+                  <span class="status-pill">自動で種類を判定</span>
+                </div>
+                <div class="upload-area">
+                  <div class="drop-zone">
+                    <i data-lucide="file-up"></i>
+                    <strong>資料をアップロード</strong>
+                    <span>PowerPoint / PDF / Word / テキスト</span>
+                    <button class="button secondary" type="button">ファイルを選択</button>
+                  </div>
+                  <label class="text-input-block">
+                    <span>または本文を貼り付け</span>
+                    <textarea id="reviewText" rows="7"></textarea>
+                  </label>
+                </div>
+              </section>
+
+              <section class="panel">
+                <div class="panel-heading">
+                  <div>
+                    <span class="eyebrow">2</span>
+                    <h2>AIが読み取った内容</h2>
+                  </div>
+                  <button class="button secondary" type="button" id="autoFillReview">
+                    <i data-lucide="wand-sparkles"></i>
+                    <span>サンプルを入れる</span>
+                  </button>
+                </div>
+                <div class="inference-grid">
+                  <label>
+                    <span>資料の種類</span>
+                    <select id="docType">
+                      <option>顧客提案書</option>
+                      <option>社内稟議書</option>
+                      <option>設計書</option>
+                      <option>システム構成図</option>
+                    </select>
+                  </label>
+                  <div>
+                    <span class="field-label">何の前に確認するか</span>
+                    <div class="chip-row" id="purposeChips">
+                      <button class="chip is-active" type="button">上司確認前</button>
+                      <button class="chip" type="button">顧客提出前</button>
+                      <button class="chip add" type="button">+追加</button>
+                    </div>
+                  </div>
+                  <div>
+                    <span class="field-label">特に心配なところ</span>
+                    <div class="chip-row" id="focusChips">
+                      <button class="chip is-active" type="button">費用対効果</button>
+                      <button class="chip is-active" type="button">運用体制</button>
+                      <button class="chip" type="button" data-add-security>安全面</button>
+                      <button class="chip add" type="button">+追加</button>
+                    </div>
+                  </div>
+                  <div>
+                    <span class="field-label">誰に見せるか</span>
+                    <div class="chip-row">
+                      <button class="chip is-active" type="button">上司</button>
+                      <button class="chip" type="button">情シス</button>
+                      <button class="chip" type="button">顧客</button>
+                      <button class="chip add" type="button">+追加</button>
+                    </div>
+                  </div>
+                  <fieldset class="strictness">
+                    <legend>チェックの細かさ</legend>
+                    <label><input type="radio" name="strictness" /> 軽め</label>
+                    <label><input type="radio" name="strictness" checked /> 標準</label>
+                    <label><input type="radio" name="strictness" /> 厳しめ</label>
+                  </fieldset>
+                </div>
+                <div class="panel-actions">
+                  <button class="button primary" type="button" id="runReview">
+                    <i data-lucide="play"></i>
+                    <span>この内容でチェックする</span>
+                  </button>
+                </div>
+              </section>
+
+              <section class="panel review-result" id="reviewResult">
+                <div class="panel-heading">
+                  <div>
+                    <span class="eyebrow">3</span>
+                    <h2>チェック結果</h2>
+                  </div>
+                  <span class="risk-badge">要修正</span>
+                </div>
+                <div class="result-summary">
+                  <div class="score-ring">
+                    <strong>62</strong>
+                    <span>/100</span>
+                  </div>
+                  <div>
+                    <span class="eyebrow">このまま出せそうか</span>
+                    <p>このまま出すと、効果の説明と安全面の書き方で指摘されそうです。</p>
+                  </div>
+                </div>
+                <div class="issue-grid">
+                  <article class="issue-card high">
+                    <div class="issue-top">
+                      <span>優先度 高</span>
+                      <strong>効果がざっくりしすぎています</strong>
+                    </div>
+                    <p><b>なぜ：</b>上司やお客様が「どれくらい得なのか」を判断しにくいため。</p>
+                    <p><b>直し方：</b>対象人数、利用回数、1回あたりの削減時間を書いてください。</p>
+                    <div class="draft">
+                      <span>そのまま使える追記例</span>
+                      <p>対象部署30名が月10回利用し、1回あたり15分削減できる場合、月75時間の削減効果が見込まれます。</p>
+                    </div>
+                  </article>
+                  <article class="issue-card high">
+                    <div class="issue-top">
+                      <span>優先度 高</span>
+                      <strong>お試し導入で何を見るかが不足しています</strong>
+                    </div>
+                    <p><b>なぜ：</b>試して終わりにならないよう、成功かどうかの見方を先に決める必要があります。</p>
+                    <p><b>直し方：</b>確認する数字、期間、いつ判断するかを書いてください。</p>
+                    <div class="draft">
+                      <span>そのまま使える追記例</span>
+                      <p>お試し期間中に問い合わせ件数、回答時間、自己解決率を測定し、開始4週間後に効果を評価します。</p>
+                    </div>
+                  </article>
+                  <article class="issue-card medium">
+                    <div class="issue-top">
+                      <span>優先度 中</span>
+                      <strong>AIに入れてはいけない情報が未記載です</strong>
+                    </div>
+                    <p><b>なぜ：</b>お客様情報や社内情報の扱いが曖昧だと、確認で止まりやすいため。</p>
+                    <p><b>直し方：</b>入力禁止情報、ログの扱い、誰が使えるかを書いてください。</p>
+                    <div class="draft">
+                      <span>そのまま使える追記例</span>
+                      <p>個人情報、契約情報、未公開の顧客情報は入力禁止とし、利用ログは管理者のみ閲覧可能とします。</p>
+                    </div>
+                  </article>
+                </div>
+              </section>
+
+              <aside class="panel applied-memory">
+                <div class="panel-heading">
+                  <div>
+                    <span class="eyebrow">前回の学び</span>
+                    <h2>今回使ったチェック観点</h2>
+                  </div>
+                </div>
+                <div class="memory-callout">
+                  <i data-lucide="bookmark-check"></i>
+                  <p>以前に上司や会議で言われた内容を、今回のチェックに使っています。</p>
+                </div>
+                <ul class="applied-list">
+                  <li>お試し導入では、測る数字と判断タイミングを書く</li>
+                  <li>生成AIを使う提案では、入力禁止情報とログの扱いを書く</li>
+                </ul>
+              </aside>
+            </div>
+          </section>
+
+          <section class="screen" data-screen-panel="memory">
+            <div class="memory-layout">
+              <section class="panel">
+                <div class="panel-heading">
+                  <div>
+                    <span class="eyebrow">1</span>
+                    <h2>指摘メモを貼り付け</h2>
+                  </div>
+                  <button class="button secondary" type="button" id="autoFillMemory">
+                    <i data-lucide="clipboard"></i>
+                    <span>サンプルを入れる</span>
+                  </button>
+                </div>
+                <div class="memory-input">
+                  <div class="type-selector" role="group" aria-label="入力種別">
+                    <button class="is-active" type="button">上司の指摘</button>
+                    <button type="button">会議メモ</button>
+                    <button type="button">自分用メモ</button>
+                    <button type="button">チャット</button>
+                    <button type="button">社内回答</button>
+                  </div>
+                  <label class="text-input-block">
+                    <span>上司の指摘、会議メモ、チャットの内容を貼り付け</span>
+                    <textarea id="memoryText" rows="12"></textarea>
+                  </label>
+                  <button class="button primary" type="button" id="extractMemory">
+                    <i data-lucide="list-checks"></i>
+                    <span>次回も見るポイントを見つける</span>
+                  </button>
+                </div>
+              </section>
+
+              <section class="panel extraction-panel" id="extractionPanel">
+                <div class="panel-heading">
+                  <div>
+                    <span class="eyebrow">2</span>
+                    <h2>次回も見るポイント</h2>
+                  </div>
+                  <span class="status-pill">4件見つかりました</span>
+                </div>
+                <div class="candidate-list" id="candidateList"></div>
+                <div class="panel-actions">
+                  <button class="button primary" type="button" id="generateCards">
+                    <i data-lucide="cards"></i>
+                    <span>選んだポイントを保存用カードにする</span>
+                  </button>
+                </div>
+              </section>
+            </div>
+          </section>
+
+          <section class="screen" data-screen-panel="cards">
+            <div class="cards-layout">
+              <section class="panel">
+                <div class="panel-heading">
+                  <div>
+                    <span class="eyebrow">3</span>
+                    <h2>保存するチェック観点</h2>
+                  </div>
+                  <span class="status-pill">次回から自動で確認</span>
+                </div>
+                <div class="policy-card-list" id="policyCardList"></div>
+                <div class="panel-actions">
+                  <button class="button secondary" type="button">保存しない</button>
+                  <button class="button primary" type="button" id="saveCards">
+                    <i data-lucide="save"></i>
+                    <span>保存して次回から使う</span>
+                  </button>
+                </div>
+              </section>
+
+              <aside class="panel">
+                <div class="panel-heading">
+                  <div>
+                    <span class="eyebrow">保存済み</span>
+                    <h2>次回も見る観点</h2>
+                  </div>
+                  <span class="count-pill" id="savedCount">3件</span>
+                </div>
+                <div class="saved-memory-list" id="savedMemoryList"></div>
+              </aside>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <div class="memory-detail-backdrop" id="memoryDetailBackdrop" hidden></div>
+    <aside class="memory-detail" id="memoryDetail" aria-hidden="true" aria-label="保存した観点の詳細">
+      <div class="memory-detail-header">
+        <div>
+          <span class="eyebrow">保存した観点</span>
+          <h2 id="detailTitle">詳細</h2>
+        </div>
+        <button class="icon-button" type="button" id="closeMemoryDetail" aria-label="閉じる">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <div class="memory-detail-body" id="memoryDetailBody"></div>
+    </aside>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>

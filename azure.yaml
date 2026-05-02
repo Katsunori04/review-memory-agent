@@ -1,0 +1,16 @@
+name: review-memory-agent
+metadata:
+  template: review-memory-agent@0.1.0
+infra:
+  provider: bicep
+  path: infra
+services:
+  api:
+    project: ./api
+    language: py
+    host: function
+  web:
+    project: ./prototype
+    language: js
+    host: staticwebapp
+    dist: .

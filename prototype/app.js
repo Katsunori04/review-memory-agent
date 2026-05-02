@@ -427,6 +427,11 @@ document.addEventListener("click", (event) => {
   if (event.target.closest("#saveCards")) {
     renderSavedMemories(true);
     showToast("保存しました。次回の資料チェックで自動で確認します。");
+    const saveComplete = document.querySelector("#saveComplete");
+    if (saveComplete) {
+      saveComplete.hidden = false;
+      refreshIcons();
+    }
     return;
   }
 });

@@ -4,6 +4,9 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Review Memory Agent Prototype</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Sans+JP:wght@400;500;600;700;900&family=Noto+Serif+JP:wght@700;900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
@@ -257,6 +260,17 @@
                     </div>
                   </article>
                 </div>
+                <div class="next-step-banner">
+                  <div class="next-step-icon"><i data-lucide="bookmark-plus"></i></div>
+                  <div>
+                    <strong>資料を出した後、上司や会議でもらった指摘を登録しておきましょう</strong>
+                    <p>上司・会議・チャットでもらったFBをここに貼るだけで、次回のチェックに自動で反映されます。</p>
+                  </div>
+                  <button class="button primary" type="button" data-screen-jump="memory">
+                    <i data-lucide="message-square-text"></i>
+                    <span>上司のFBを登録する</span>
+                  </button>
+                </div>
               </section>
 
               <aside class="panel applied-memory">
@@ -345,6 +359,15 @@
                   <button class="button primary" type="button" id="saveCards">
                     <i data-lucide="save"></i>
                     <span>保存して次回から使う</span>
+                  </button>
+                </div>
+                <div class="save-complete-banner" id="saveComplete" hidden>
+                  <i data-lucide="check-circle"></i>
+                  <div>
+                    <strong>保存しました。次回の資料チェックで自動的に使われます。</strong>
+                  </div>
+                  <button class="button secondary" type="button" data-screen-jump="review">
+                    <span>次の資料をチェックする →</span>
                   </button>
                 </div>
               </section>
